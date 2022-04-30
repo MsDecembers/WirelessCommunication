@@ -1,0 +1,14 @@
+gain:
+    ue_bs_ple: 3.5
+    ue_irs_ple: 2.5
+    irs_bs_ple: 2.5
+    Rayleigh: 1
+    Rician: 2
+model:
+    bs_num: 2  # 基站个数
+    ue_num: 3  # 用户个数
+    power_max: 50  # 基站最大发射功率
+    irs_elements_num: 20  # IRS反射元件个数
+    antenna_num: 5  # 基站天线个数
+    rate_min: 1  # 最低速率要求
+    bandwidth: 400  # 带宽
