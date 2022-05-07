@@ -6,6 +6,8 @@ import random
 import math
 import numpy as np
 
+from common import utils
+
 
 class MLP(nn.Module):
     """
@@ -61,30 +63,32 @@ class ReplayBuffer:
 
 
 class DQN:
-    def __init__(self, state_dim, action_dim, cfg):
+    def __init__(self, agent_name, state_dim, action_dim):
+        drl_cfg = utils.get_parameters('drl')
 
         self.action_dim = action_dim  # 总的动作个数
-        self.device = cfg.device  # 设备，cpu或gpu等
-        self.gamma = cfg.gamma  # 奖励的折扣因子
+        self.agent_name = agent_name
+        self.device = utils.get_device()  # 设备，cpu或gpu等
+        self.gamma = drl_cfg['gamma']  # 奖励的折扣因子
         # e-greedy策略相关参数
         self.frame_idx = 0  # 用于epsilon的衰减计数
-        self.epsilon = lambda frame_idx: cfg.epsilon_end + \
-                                         (cfg.epsilon_start - cfg.epsilon_end) * \
-                                         math.exp(-1. * frame_idx / cfg.epsilon_decay)
-        self.batch_size = cfg.batch_size
-        self.policy_net = MLP(state_dim, action_dim, hidden_dim=cfg.hidden_dim).to(self.device)
-        self.target_net = MLP(state_dim, action_dim, hidden_dim=cfg.hidden_dim).to(self.device)
+        # self.epsilon = lambda frame_idx: drl_cfg['epsilon_end'] + \
+        #                                  (drl_cfg['epsilon_start'] - drl_cfg['epsilon_end']) * \
+        #                                  math.exp(-1. * frame_idx / drl_cfg['epsilon_decay'])
+        self.batch_size = drl_cfg['batch_size']
+        self.policy_net = MLP(state_dim, action_dim, hidden_dim=drl_cfg['hidden_dim']).to(self.device)
+        self.target_net = MLP(state_dim, action_dim, hidden_dim=drl_cfg['hidden_dim']).to(self.device)
         for target_param, param in zip(self.target_net.parameters(),
                                        self.policy_net.parameters()):  # 复制参数到目标网路targe_net
             target_param.data.copy_(param.data)
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr)  # 优化器
-        self.memory = ReplayBuffer(cfg.memory_capacity)  # 经验回放
+        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=drl_cfg['lr'])  # 优化器
+        self.memory = ReplayBuffer(drl_cfg['memory_capacity'])  # 经验回放
 
     def choose_action(self, state):
         """ 选择动作
         """
         self.frame_idx += 1
-        if random.random() > self.epsilon(self.frame_idx):
+        if random.random() >= get_epsilon(self.frame_idx):
             with torch.no_grad():
                 state = torch.tensor(state, device=self.device, dtype=torch.float32)
                 q_values = self.policy_net(state)
@@ -120,15 +124,20 @@ class DQN:
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step()
 
-    def save(self, path):
-        torch.save(self.target_net.state_dict(), path + 'dqn_checkpoint.pth')
+    def save(self, model_path):
+        torch.save(self.target_net.state_dict(), model_path + self.agent_name + '_dqn_checkpoint.pth')
 
-    def load(self, path):
-        """ 加载dqn模型
-
-        :param path: 模型存储路径
-        :return:
-        """
-        self.target_net.load_state_dict(torch.load(path + 'dqn_checkpoint.pth'))
+    def load(self, model_path):
+        self.target_net.load_state_dict(torch.load(model_path + self.agent_name + '_dqn_checkpoint.pth'))
         for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
             param.data.copy_(target_param.data)
+
+
+def get_epsilon(frame_idx):
+    epsilon_decay = utils.get_parameter('drl', 'epsilon_decay')
+    epsilon_start = utils.get_parameter('drl', 'epsilon_start')
+    epsilon_end = utils.get_parameter('drl', 'epsilon_end')
+    epsilon = epsilon_end + \
+              (epsilon_start - epsilon_end) * \
+              math.exp(-1. * frame_idx / epsilon_decay)
+    return epsilon

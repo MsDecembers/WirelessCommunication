@@ -34,9 +34,9 @@ class ParamConfig:
 
         ################################# 保存结果相关参数 ##############################
         self.result_path = utils.get_project_url() + "/outputs/" + self.env_name + \
-                           '/' + utils.get_curretn_time() + '/results/'  # 保存结果的路径
+                           '/' + utils.get_current_time() + '/results/'  # 保存结果的路径
         self.model_path = utils.get_project_url() + "/outputs/" + self.env_name + \
-                          '/' + utils.get_curretn_time() + '/models/'  # 保存模型的路径
+                          '/' + utils.get_current_time() + '/models/'  # 保存模型的路径
         self.save = True  # 是否保存图片
         ################################################################################
 

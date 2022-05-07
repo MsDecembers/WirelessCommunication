@@ -5,10 +5,39 @@ gain:
     Rayleigh: 1
     Rician: 2
 model:
-    bs_num: 2  # 基站个数
-    ue_num: 3  # 用户个数
-    power_max: 50  # 基站最大发射功率
-    irs_elements_num: 20  # IRS反射元件个数
+    bs_num: 3  # 基站个数
+    ue_num: 7  # 用户个数
     antenna_num: 5  # 基站天线个数
+    content_num: 15  # 内容个数
+    power_max: 50  # 基站最大发射功率
+    cache_max: # 基站缓存容量
+     - 4
+     - 5
+     - 4
+    flink_capacity: # 基站前传容量（速率）
+     - 100
+     - 100
+     - 100
+    content_sizes: 1  # 内容大小
+    irs_elements_num: 20  # IRS反射元件个数
     rate_min: 1  # 最低速率要求
     bandwidth: 400  # 带宽
+    queue_capacity: 100
+    reward_var_limit: 1
+drl:
+  gamma: 0.95  # 折扣因子
+  epsilon_start: 0.90  # e-greedy策略中初始epsilon
+  epsilon_end: 0.01  # e-greedy策略中的终止epsilon
+  epsilon_decay: 500  # e-greedy策略中epsilon的衰减率
+  lr: 0.0001  # 学习率
+  memory_capacity: 100000  # 经验回放的容量
+  batch_size: 64  # mini-batch
+  target_update: 4  # 目标网络的更新频率
+  hidden_dim: 256  # 网络隐藏层
+base:
+  algorithm_name: 'DQN'  # 算法名称
+  env_name: 'IRS_COMP_MISO'  # 环境名称
+  seed: 10  # 随机种子，置0则不设置随机种子
+  train_eps: 200  # 训练的回合数 200
+  test_eps: 30  # 测试的回合数 30
+  save: True  # 是否保存图片
