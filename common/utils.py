@@ -26,7 +26,7 @@ def plot_rewards(rewards, ma_rewards, result_path, tag='train'):
     plt.legend()
     if save:
         plt.savefig(result_path + "{}_rewards_curve".format(tag))
-    plt.show()
+    # plt.show()
 
 
 def plot_losses(losses, algo="DQN", save=True, path='./'):
@@ -38,7 +38,7 @@ def plot_losses(losses, algo="DQN", save=True, path='./'):
     plt.legend()
     if save:
         plt.savefig(path + "losses_curve")
-    plt.show()
+    # plt.show()
 
 
 def save_results(rewards, ma_rewards, result_path, tag='train'):
